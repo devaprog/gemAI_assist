@@ -1,11 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog
-import tkinter.ttk as ttk  # Import for ttk widgets and themes
 import speech_recognition as sr
 import pyttsx3
 import google.generativeai as genai
-
-# (Theme initialization and styling code for ttkthemes or customtkinter)
 
 # Subject Pretext Dictionary (expand and customize as needed)
 subject_pretexts = {
@@ -49,9 +46,7 @@ def get_user_input(window, input_method):
 
 # Function to provide response (text or voice)
 def provide_response(text_response, window, output_method):
-    output_text = tk.Text(window, height=8, width=80)
-    output_text.insert(tk.END, text_response)
-    output_text.pack(fill=tk.BOTH, expand=True)  # Fill all space and expand vertically
+    chat_history.insert(tk.END, f"You: {text_response}\n")
     if output_method == "voice":
         engine = pyttsx3.init()
         engine.say(text_response)
@@ -84,6 +79,10 @@ def get_response(model_input, stream, model):
     return response.text
 
 def myAssistant(window):
+    # Chat History Text Box
+    chat_history = tk.Text(window, height=10, width=50)
+    chat_history.pack(fill=tk.BOTH, expand=True)  # Fill all space and expand vertically
+
     # Input Method Selection (Radio Buttons)
     input_method_var = tk.StringVar(window)
     input_method_text_radio = ttk.Radiobutton(window, text="Text Input", variable=input_method_var, value="text")
@@ -126,10 +125,6 @@ def myAssistant(window):
     image_preview_label = ttk.Label(window)
     image_preview_label.pack()
 
-    # Output Text Box
-    output_text = tk.Text(window, height=8, width=80)
-    output_text.pack(fill=tk.BOTH, expand=True)  # Fill all space and expand vertically
-
     def get_assistant_response(window, input_method="text"):
         """
         Processes user input and provides response based on selected methods.
@@ -137,6 +132,8 @@ def myAssistant(window):
         nonlocal image_path  # Access the non-local image_path variable
 
         user_input = get_user_input(window, input_method)
+        chat_history.insert(tk.END, f"You: {user_input}\n")  # Add user input to chat history
+
         model_input = f"{subject_pretexts[subject]}{user_input}"
 
         if image_path:
@@ -149,8 +146,7 @@ def myAssistant(window):
             stream = False
 
         response_text = get_response(model_input, stream, model)
-        output_text.delete("1.0", tk.END)  # Clear previous output
-        output_text.insert(tk.END, response_text)
+        chat_history.insert(tk.END, f"Assistant: {response_text}\n")  # Add assistant response to chat history
         provide_response(response_text, window, output_method_var.get())
 
     window.mainloop()
