@@ -1,0 +1,19 @@
+Colab /Linux(remove !):
+! pip install -U -q google-generativeai speechRecognition pyttsx3
+
+! sudo apt install portaudio19
+
+! sudo apt install python3-pyaudio
+
+! pip install PyAudio
+
+_________________________
+
+Windows:
+python -m pip install -U -q google-generativeai speechRecognition pyttsx3 pyaudio
+
+_________________________
+
+Mac:
+brew install portaudio
+pip install -U -q google-generativeai speechRecognition pyttsx3 pyaudio
