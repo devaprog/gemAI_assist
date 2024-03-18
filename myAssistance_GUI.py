@@ -1,8 +1,11 @@
 import tkinter as tk
 from tkinter import filedialog
+import tkinter.ttk as ttk  # Import for ttk widgets and themes
 import speech_recognition as sr
 import pyttsx3
 import google.generativeai as genai
+
+# (Theme initialization and styling code for ttkthemes or customtkinter)
 
 # Subject Pretext Dictionary (expand and customize as needed)
 subject_pretexts = {
@@ -17,7 +20,7 @@ subject_pretexts = {
 # Function to get user's subject choice
 def get_subject(window):
     subject_choice_var = tk.StringVar(window)
-    subject_dropdown = tk.OptionMenu(window, subject_choice_var, *subject_pretexts.keys())
+    subject_dropdown = ttk.Combobox(window, values=subject_pretexts.keys(), textvariable=subject_choice_var)
     subject_dropdown.pack()
     subject_choice = subject_choice_var.get().lower()
     subject_dropdown.destroy()  # Remove dropdown after selection
@@ -28,10 +31,7 @@ def get_user_input(window, input_method):
     user_input_text = tk.StringVar(window)
     if input_method == "text":
         user_input_entry = tk.Entry(window, textvariable=user_input_text)
-        user_input_entry.pack()
-        window.wait_for(user_input_entry)  # Wait for user input
-        user_input = user_input_text.get()
-        user_input_entry.destroy()  # Remove entry after input
+        user_input_entry.pack(fill=tk.X)  # Fill horizontal space
     elif input_method == "voice":
         r = sr.Recognizer()
         with sr.Microphone() as source:
@@ -49,9 +49,9 @@ def get_user_input(window, input_method):
 
 # Function to provide response (text or voice)
 def provide_response(text_response, window, output_method):
-    output_text = tk.Text(window, height=5, width=50)
+    output_text = tk.Text(window, height=8, width=80)
     output_text.insert(tk.END, text_response)
-    output_text.pack()
+    output_text.pack(fill=tk.BOTH, expand=True)  # Fill all space and expand vertically
     if output_method == "voice":
         engine = pyttsx3.init()
         engine.say(text_response)
@@ -63,10 +63,10 @@ def handle_image_upload(window):
         initialdir="/", title="Select image", filetypes=[("Image Files", "*.jpg;*.jpeg;*.png")]
     )
     if image_path:
-        image_label = tk.Label(window, text="Uploaded Image:")
+        image_label = ttk.Label(window, text="Uploaded Image:")
         image_label.pack()
         image = tk.PhotoImage(file=image_path)
-        image_preview = tk.Label(window, image=image)
+        image_preview = ttk.Label(window, image=image)
         image_preview.image = image  # Keep a reference to avoid garbage collection
         image_preview.pack()
         return image_path
@@ -86,44 +86,49 @@ def get_response(model_input, stream, model):
 def myAssistant(window):
     # Input Method Selection (Radio Buttons)
     input_method_var = tk.StringVar(window)
-    input_method_text_radio = tk.Radiobutton(window, text="Text Input", variable=input_method_var, value="text")
+    input_method_text_radio = ttk.Radiobutton(window, text="Text Input", variable=input_method_var, value="text")
     input_method_text_radio.pack()
-    input_method_voice_radio = tk.Radiobutton(window, text="Voice Input", variable=input_method_var, value="voice")
+    input_method_voice_radio = ttk.Radiobutton(window, text="Voice Input", variable=input_method_var, value="voice")
     input_method_voice_radio.pack()
     input_method_var.set("text")  # Pre-select text input
 
     # Output Method Selection (Radio Buttons)
     output_method_var = tk.StringVar(window)
-    output_method_text_radio = tk.Radiobutton(window, text="Text Output", variable=output_method_var, value="text")
+    output_method_text_radio = ttk.Radiobutton(window, text="Text Output", variable=output_method_var, value="text")
     output_method_text_radio.pack()
-    output_method_voice_radio = tk.Radiobutton(window, text="Voice Output", variable=output_method_var, value="voice")
+    output_method_voice_radio = ttk.Radiobutton(window, text="Voice Output", variable=output_method_var, value="voice")
     output_method_voice_radio.pack()
     output_method_var.set("text")  # Pre-select text output
 
     # Subject Selection (Dropdown Menu)
-    subject = get_subject(window)
+    subject_frame = ttk.Frame(window)  # Create a frame for subject selection
+    subject_frame.pack(fill=tk.X)  # Fill horizontal space
+    subject_label = ttk.Label(subject_frame, text="Subject:")
+    subject_label.pack(side=tk.LEFT)
+    subject = get_subject(subject_frame)
 
     # User Input Field and Button
     user_input_text = tk.StringVar(window)
     user_input_entry = tk.Entry(window, textvariable=user_input_text)
-    user_input_entry.pack()
-    user_input_button = tk.Button(window, text="Ask", command=lambda: get_assistant_response(window))
-    user_input_button.pack()
+    user_input_entry.pack(fill=tk.X)  # Fill horizontal space vertically
+    user_input_button = ttk.Button(window, text="Ask", command=lambda: get_assistant_response(window))
+    user_input_button.pack(fill=tk.X)  # Fill horizontal space
 
     # Microphone Button for Voice Input
-    microphone_button = tk.Button(window, text="", command=lambda: get_assistant_response(window, input_method="voice"))
+    microphone_image = tk.PhotoImage(file="microphone.png")  # Replace with your microphone icon
+    microphone_button = ttk.Button(window, image=microphone_image, command=lambda: get_assistant_response(window, input_method="voice"))
     microphone_button.pack()
 
     # Image Upload Button and Preview Label
     image_path = None
-    image_upload_button = tk.Button(window, text="️", command=lambda: handle_image_upload(window))
+    image_upload_button = ttk.Button(window, text="Upload Image", command=lambda: handle_image_upload(window))
     image_upload_button.pack()
-    image_preview_label = tk.Label(window)
+    image_preview_label = ttk.Label(window)
     image_preview_label.pack()
 
     # Output Text Box
     output_text = tk.Text(window, height=8, width=80)
-    output_text.pack()
+    output_text.pack(fill=tk.BOTH, expand=True)  # Fill all space and expand vertically
 
     def get_assistant_response(window, input_method="text"):
         """
@@ -153,4 +158,5 @@ def myAssistant(window):
 if __name__ == "__main__":
     window = tk.Tk()
     window.title("My Personal Assistant")
+    # (Theme initialization code here)
     myAssistant(window)
